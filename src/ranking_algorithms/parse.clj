@@ -57,7 +57,8 @@
 (def t
   (atom teams))
 (def m
-  [{:home "Manchester United", :away "Manchester City", :home_score 1, :away_score 0}])
+  [{:home "Manchester United", :away "Manchester City", :home_score 1, :away_score 0}
+   {:home "Manchester United", :away "Manchester City", :home_score 2, :away_score 0}])
 
 (map (fn [match]
        (swap! t (fn [teams]
@@ -68,16 +69,33 @@
                                (new-away-score match teams)))))
      m)
 
+(defn new-home-score
+  [match teams]
+  (let [home-team (find-team (:home match) teams)]
+    (inc (:points home-team))))
+
+(defn new-away-score
+  [match teams]
+  (let [away-team (find-team (:away match) teams)]
+    (inc (:points away-team))))
+
 (defn update-teams
   [teams team1 new-score1 team2 new-score2]
   (vec
-   (map #(cond (= team1 (:name %))
-               (assoc % :points new-score1)
-               (= team2 (:name %))
-               (assoc % :points new-score2)
-               :else
-               %)
+   (map #(cond (= team1 (:name %)) (assoc % :points new-score1)
+               (= team2 (:name %)) (assoc % :points new-score2)
+               :else %)
         teams)))
+
+(map #(if (= "Manchester United" (:name %))
+        (assoc % :points 1500)
+        %)
+     teams)
+
+(swap! t
+       (fn [teams]
+         (map #(if (= "Manchester United" (:name %)) (assoc % :points 1500) %)
+              teams)))
 
 (defn new-home-score
   [match teams]
