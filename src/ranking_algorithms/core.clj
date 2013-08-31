@@ -1,7 +1,6 @@
 (ns ranking-algorithms.core
   (:require [clojure.math.numeric-tower :as math]))
 
-
 (defn ranking-after-win
   [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}]
   (+ ranking (* importance (- 1 (expected ranking opponent-ranking) ))))
