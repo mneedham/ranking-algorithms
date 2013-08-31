@@ -3,11 +3,9 @@
   (:require [ranking-algorithms.core :as core]))
 
 (defn fetch-page
-  "Downloads a document as an html-resource"
+  "Processes a file path into a HTML resource"
   [file-path]
   (html-resource (java.io.StringReader. (slurp file-path))))
-
-(extract-content (first (select (fetch-url "/tmp/football/ec200203det.html") [:div.Section1 :p :span])))
 
 (defn matches [file]
   (->> file
