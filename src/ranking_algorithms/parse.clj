@@ -69,19 +69,6 @@
                                                       :importance 32}))))
      (= home_score away_score) ts)))
 
-(defn process-match [ts match]
-  (let [{:keys [home away home_score away_score]} match]
-    (cond
-     (> home_score away_score) (update-in ts [home :points] + 3)
-     (> away_score home_score) (update-in ts [away :points] + 3)
-     (= home_score away_score) (-> ts
-                                   (update-in [home :points] + 1)
-                                   (update-in [away :points] + 1)))))
-
-(comment (def starting-teams
-           (map (fn [x] {:name x :points 1200})
-                (seq (extract-teams all-matches)))))
-
 (defn as-match
   [row]
   (let [match
@@ -103,64 +90,6 @@
 
 (defn extract-content [row]
   (first (get row :content)))
-
-(def teams
-  [ {:name "Manchester United" :points 1200}
-    {:name "Manchester City" :points 1200} ])
-
-(def t (atom teams))
-
-(def m
-  [{:home "Manchester United", :away "Manchester City", :home_score 1, :away_score 0}
-   {:home "Manchester United", :away "Manchester City", :home_score 2, :away_score 0}])
-
-(map (fn [match]
-       (swap! t (fn [teams]
-                  (update-teams teams
-                               (:home match)
-                               (new-home-score match teams)
-                               (:away match)
-                               (new-away-score match teams)))))
-     m)
-
-(comment (defn new-home-score
-            [match teams]
-            (let [home-team (find-team (:home match) teams)]
-              (inc (:points home-team)))))
-
-(comment (defn new-away-score
-            [match teams]
-            (let [away-team (find-team (:away match) teams)]
-              (inc (:points away-team)))))
-
-(defn update-teams
-  [teams team1 new-score1 team2 new-score2]
-  (vec
-   (map #(cond (= team1 (:name %)) (assoc % :points new-score1)
-               (= team2 (:name %)) (assoc % :points new-score2)
-               :else %)
-        teams)))
-
-(comment  (map #(if (= "Manchester United" (:name %))
-                  (assoc % :points 1500)
-                  %)
-               teams))
-
-(comment  (swap! t
-                 (fn [teams]
-                   (map #(if (= "Manchester United" (:name %)) (assoc % :points 1500) %)
-                        teams))))
-
-(comment
-  (swap! teams-atom (fn [teams] (update-team @teams-atom "Manchester United" 1300))))
-
-
-(comment  (map (fn [match]
-                 (swap! teams-atom
-                        (fn [teams] (update-team @teams-atom (:home match) 1300))))
-               all-matches))
-
-
 
 (defn find-team [team teams]
   (first
