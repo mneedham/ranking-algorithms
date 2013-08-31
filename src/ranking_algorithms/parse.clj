@@ -28,7 +28,7 @@
   (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams all-matches))))
 
 (defn top-teams [number]
-  (take 5
+  (take number
         (sort-by (fn [x] (:points (val x)))
                  >
                  (seq (reduce process-match starting-teams all-matches)))))
@@ -77,36 +77,6 @@
      (= home_score away_score) (-> ts
                                    (update-in [home :points] + 1)
                                    (update-in [away :points] + 1)))))
-
-(defn new-home-score
-  [match teams]
-  (let [home-team (find-team (:home match) teams)
-        away-team (find-team (:away match) teams)]
-    (cond (> (:home_score match) (:away_score match))
-          (core/ranking-after-win {:ranking (:points home-team)
-                                   :opponent-ranking (:points away-team)
-                                   :importance 32} )
-          (< (:home_score match) (:away_score match))
-          (core/ranking-after-loss {:ranking (:points home-team)
-                                   :opponent-ranking (:points away-team)
-                                   :importance 32} )
-          :else
-          (:points home-team))))
-
-(defn new-away-score
-  [match teams]
-  (let [home-team (find-team (:home match) teams)
-        away-team (find-team (:away match) teams)]
-    (cond (> (:away_score match) (:home_score match))
-          (core/ranking-after-win {:ranking (:points away-team)
-                                   :opponent-ranking (:points home-team)
-                                   :importance 32} )
-          (< (:away_score match) (:home_score match))
-          (core/ranking-after-loss {:ranking (:points away-team)
-                                   :opponent-ranking (:points home-team)
-                                   :importance 32} )
-          :else
-          (:points away-team))))
 
 (comment (def starting-teams
            (map (fn [x] {:name x :points 1200})
