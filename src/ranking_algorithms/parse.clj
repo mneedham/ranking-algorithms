@@ -20,42 +20,7 @@
 (defn extract-teams [matches]
   (->> matches
        (map #(:home %))
-       set)) 
-
-(defn top-teams [number matches]
-  (let [teams-with-rankings
-        (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams matches)))]
-    (take number
-          (sort-by (fn [x] (:points (val x)))
-                   >
-                   (seq (reduce process-match teams-with-rankings matches))))))
-
-(defn show-matches [team matches]
-  (->> matches
-       (filter #(or (= team (:home %)) (= team (:away %))))
-       (map #(show-opposition team %))))
-
-(defn show-opposition [team match]
-  (if (= team (:home match))
-    {:opposition (:away match) :score (str (:home_score match) "-" (:away_score match))}
-    {:opposition (:home match) :score (str (:away_score match) "-" (:home_score match))}))
-
-(defn process-match [ts match]
-  (let [{:keys [home away home_score away_score]} match]
-    (cond
-     (> home_score away_score)
-     (-> ts
-         (update-in  [home :points]
-                     #(core/ranking-after-win {:ranking % :opponent-ranking (:points (get ts away)) :importance 32}))
-         (update-in  [away :points]
-                     #(core/ranking-after-loss {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) 
-     (> away_score home_score)
-     (-> ts
-         (update-in  [home :points]
-                     #(core/ranking-after-loss {:ranking % :opponent-ranking (:points  (get ts away)) :importance 32}))
-         (update-in  [away :points]
-                     #(core/ranking-after-win {:ranking % :opponent-ranking (:points (get ts home)) :importance 32})))
-     (= home_score away_score) ts)))
+       set))
 
 (defn as-match
   [row]

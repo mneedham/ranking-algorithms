@@ -1,14 +1,22 @@
 (ns ranking-algorithms.core
-  (:require [clojure.math.numeric-tower :as math]))
+  (:require [ranking-algorithms.ranking :as ranking])
+  (:require [ranking-algorithms.parse :as parse]))
 
-(defn ranking-after-win
-  [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}]
-  (+ ranking (* importance (- 1 (expected ranking opponent-ranking) ))))
+(defn top-teams [number matches]
+  (let [teams-with-rankings
+        (apply array-map (mapcat (fn [x] [x {:points 1200}]) (parse/extract-teams matches)))]
+    (take number
+          (sort-by (fn [x] (:points (val x)))
+                   >
+                   (seq (reduce ranking/process-match teams-with-rankings matches))))))
 
-(defn ranking-after-loss
-  [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}]
-  (+ ranking (* importance (- 0 (expected ranking opponent-ranking) ))))
+(defn show-opposition [team match]
+  (if (= team (:home match))
+    {:opposition (:away match) :score (str (:home_score match) "-" (:away_score match))}
+    {:opposition (:home match) :score (str (:away_score match) "-" (:home_score match))}))
 
-(defn expected [my-ranking opponent-ranking]
-  (/ 1.0
-     (+ 1 (math/expt 10 (/ (- opponent-ranking my-ranking) 400)))))
+(defn show-matches [team matches]
+  (->> matches
+       (filter #(or (= team (:home %)) (= team (:away %))))
+       (map #(show-opposition team %))))
+
