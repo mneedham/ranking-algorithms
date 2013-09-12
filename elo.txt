@@ -1,0 +1,27 @@
+# Elo Algorithm
+
+## Match is worth 32 points
+
+CF Barcelona 			1344.1248471483495 	{:wins 13, :draw 2, :loses 1}	QF
+Manchester United 		1292.535742649289 	{:wins 11, :draw 1, :loses 4}	QF
+FC Valencia 			1277.2454952396006 	{:wins 8, :draw 4, :loses 2}	QF
+Internazionale Milaan 	1270.4583603297258 	{:wins 8, :draw 7, :loses 3}	SF
+AC Milan 				1257.4584043586337 	{:wins 10, :draw 4, :loses 5}	F
+Juventus Turijn 		1254.8447926142321 	{:wins 8, :draw 4, :loses 5}	W
+Real Madrid 			1248.142156866839 	{:wins 7, :draw 5, :loses 4}	SF
+Deportivo La Coruna 	1235.8175715111222 	{:wins 6, :draw 1, :loses 4}	2nd
+Borussia Dortmund 		1231.1674513640087 	{:wins 6, :draw 2, :loses 4}	2nd
+Sparta Praag 			1230.6041028357274 	{:wins 3, :draw 0, :loses 1}	3rd QR
+
+## Match value increases as reach later rounds
+
+CF Barcelona 			1262.9457579894693 	{:wins 13, :draw 2, :loses 1}	QF	
+Manchester United 		1242.1946643252898 	{:wins 11, :draw 1, :loses 4}	QF
+FC Valencia 			1234.0526161941448 	{:wins 8, :draw 4, :loses 2}	QF
+AC Milan 				1231.0845401303873 	{:wins 10, :draw 4, :loses 5}	F
+Internazionale Milaan 	1229.0294412278724 	{:wins 8, :draw 7, :loses 3}	SF	
+Juventus Turijn 		1221.723923057639 	{:wins 8, :draw 4, :loses 5}	W
+Real Madrid 			1220.456959340132 	{:wins 7, :draw 5, :loses 4}	SF
+Borussia Dortmund 		1213.2413557521063 	{:wins 6, :draw 2, :loses 4}	2nd
+Deportivo La Coruna 	1211.291080035572 	{:wins 6, :draw 1, :loses 4}	2nd
+Olympique Lyon 			1206.3434983709851 	{:wins 2, :draw 2, :loses 1}	1st

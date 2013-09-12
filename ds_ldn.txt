@@ -1,0 +1,29 @@
+Data Science London Talk
+
+* The problem
+  * Felt that the team winning the Champions League wasn't necessarily
+    the best team - think Mourinho said it's heavily luck based
+  * UEFA coefficients rank over 5 years and don't take into account
+    the strength of the opposition
+* Getting data - not easily available anywhere - scrape it using Enlive
+  * Show the ability to explore the HTML using Chrome inspector &
+    nrepl
+  * Show how you can redefine functions in nrepl (Ctrl X + E) so you
+    can try out new ways of scraping the data
+
+* Implementing algorithm and testing it out with fake values in nrepl
+* Gluing it all together with the Elo algorithm
+  * Elo algorithm is simple to implement - favours the teams that won
+    more matches in total, doesn't take the round into account e.g. you
+    end up with Juventus as the 5th strongest team despite winning the
+    Champions League
+  * Documented problems with Elo:
+    1. New players can take a long time to ascend or descend to their correct levels.
+    2. Highly ranked players can be hesitant to play with provisional
+       players whose ranking might be much more uncertain.
+    3. There are no allowances for games with more than two players.
+
+
+* Other ones
+  * True Skill
+  * Glicko
