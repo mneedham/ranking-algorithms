@@ -6,40 +6,11 @@
   [file-path]
   (html-resource (java.io.StringReader. (slurp file-path))))
 
-(defn matches [file]
-  (->> file
-       fetch-page
-       extract-rows
-       (map extract-content)
-       (filter recognise-match?)
-       (map as-match)))
-
-(defn matches [file]
-  (->> file
-       fetch-page
-       extract-rows
-       (map extract-content)
-       (filter #(string? %))
-       (filter #(not (clojure.string/blank? (re-find #"^[a-zA-Z0-9']+" %))))
-       (partition-by #(re-find #"[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]" %))
-       (partition 2)
-       (map vec)
-       (map as-match)
-       ))
-
-(->> "/Users/markhneedham/code/ranking-algorithms/data/ec200203det.html"
-     fetch-page
-     extract-rows
-     (map-indexed extract-content)
-     (filter recognise-match?)
-     (take 5))
-
-(def all-matches
-  (concat (matches "/Users/markhneedham/code/ranking-algorithms/data/ec200203det.html")
-          [{:home "AC Milan", :away "Juventus Turijn", :home_score 0, :away_score 0 :round "Final"}]))
-
-(def rounds
-  (set (map #(:round %) all-matches)))
+(defn cleanup [word]
+  (clojure.string/join " "
+                       (map #(if (<= 3 (count %)) (clojure.string/capitalize %) %)
+                                (filter #(not(clojure.string/blank? %))
+                                        (clojure.string/split (clojure.string/replace word "\n" " ") #" ")))))
 
 (defn extract-teams [matches]
   (->> matches
@@ -64,63 +35,7 @@
               (extract-round (cleanup (nth details 0)))
               (extract-round (cleanup (nth details 1))) )}))
 
-  (defn as-match
-    [row]
-    (let [match
-          (first (re-seq #"([a-zA-Z\s]+)-([a-zA-Z\s]+) ([0-9])[\s]?.[\s]?([0-9])" row))]
-      {:home (cleanup (nth match 1))
-       :away (cleanup (nth match 2))
-       :home_score (read-string (nth match 3))
-       :away_score (read-string (nth match 4))}))
-
-(defn cleanup [word]
-  (clojure.string/join " "
-                       (map clojure.string/capitalize
-                            (clojure.string/split
-                             (clojure.string/trim
-                              (clojure.string/replace word "\n" " "))
-                             #" "))))
-(defn cleanup [word]
-  (clojure.string/join " "
-                       (map #(if (<= 3 (count %)) (clojure.string/capitalize %) %)
-                                (filter #(not(clojure.string/blank? %))
-                                        (clojure.string/split (clojure.string/replace word "\n" " ") #" ")))))
-
-
-(clojure.string/join " "
-                       (-> word
-                           (clojure.string/replace "\n" " ")
-                           (clojure.string/trim)
-                           (clojure.string/split #" ")
-                           (map clojure.string/capitalize)
-                           ))
-
-
-
-
-
-(def foo
-  (->> "/Users/markhneedham/code/ranking-algorithms/data/ec200203det.html"
-       fetch-page
-       extract-rows
-       (map extract-content)
-       ))
-
-(->> foo
-     (filter #(string? %))
-     (filter #(not (clojure.string/blank? (re-find #"^[a-zA-Z0-9']+" %))))
-     (map #(re-find #"[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]" %)))
-
-(->> foo
-     (filter #(string? %))
-     (filter #(not (clojure.string/blank? (re-find #"^[a-zA-Z0-9']+" %))))
-     (partition-by #(re-find #"[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]" %))
-     (partition 2))
-
 (defn recognise-match? [row]
-  (and (string? row) (re-matches #"[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]" row)))
-
-(defn recognise-match? [[idx row]]
   (and (string? row) (re-matches #"[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]" row)))
 
 (defn extract-rows [page]
@@ -129,31 +44,113 @@
 (defn extract-content [row]
   (first (get row :content)))
 
-(defn extract-content [idx row]
-  [idx (first (get row :content))])
-
 (defn find-team [team teams]
   (first
    (filter #(= team (:name %)) teams)))
 
-(def m (select page [:div.Section1 :p]))
+(defn matches [file]
+  (->> file
+       fetch-page
+       extract-rows
+       (map extract-content)
+       (filter #(string? %))
+       (filter #(not (clojure.string/blank? (re-find #"^[a-zA-Z0-9']+" %))))
+       (partition-by #(re-find #"[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]" %))
+       (partition 2)
+       (map vec)
+       (map as-match)
+       ))
 
-(defn extract-finalists [page]
-  (filter (fn [p] (not (empty? (select p [:b])))) page))
+(def all-matches
+  (concat (matches "/Users/markhneedham/code/ranking-algorithms/data/ec200203det.html")
+          [{:home "AC Milan", :away "Juventus Turijn", :home_score 0, :away_score 0 :round "Final"}]))
 
-(map (fn [row] (map #(:content % ) (select row [:b]))) (extract-finalists m))
+(def rounds
+  (set (map #(:round %) all-matches)))
 
-(map #(:content %)
-     (first (nth (map (fn [row] (map #(:content % ) (select row [:b]))) (extract-finalists m)) 6)))
+(comment (defn as-match
+           [row]
+           (let [match
+                 (first (re-seq #"([a-zA-Z\s]+)-([a-zA-Z\s]+) ([0-9])[\s]?.[\s]?([0-9])" row))]
+             {:home (cleanup (nth match 1))
+              :away (cleanup (nth match 2))
+              :home_score (read-string (nth match 3))
+              :away_score (read-string (nth match 4))})))
 
-(nth (map (fn [row] (map #(:content % ) (select row [:b]))) (extract-finalists m)) 6)
+(comment (defn cleanup [word]
+           (clojure.string/join " "
+                                (map clojure.string/capitalize
+                                     (clojure.string/split
+                                      (clojure.string/trim
+                                       (clojure.string/replace word "\n" " "))
+                                      #" ")))))
 
-(def blah  (nth (->> (extract-finalists m)
-                     (map (fn [row] (map #(:content % ) (select row [:b]))))
-                     ) 6))
+(comment (clojure.string/join " "
+                              (-> word
+                                  (clojure.string/replace "\n" " ")
+                                  (clojure.string/trim)
+                                  (clojure.string/split #" ")
+                                  (map clojure.string/capitalize)
+                                  )))
+
+
+(comment (def foo
+           (->> "/Users/markhneedham/code/ranking-algorithms/data/ec200203det.html"
+                fetch-page
+                extract-rows
+                (map extract-content)
+                )))
+
+(comment (->> foo
+              (filter #(string? %))
+              (filter #(not (clojure.string/blank? (re-find #"^[a-zA-Z0-9']+" %))))
+              (map #(re-find #"[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]" %))))
+
+(comment (->> foo
+              (filter #(string? %))
+              (filter #(not (clojure.string/blank? (re-find #"^[a-zA-Z0-9']+" %))))
+              (partition-by #(re-find #"[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]" %))
+              (partition 2)))
+
+(comment (def m (select page [:div.Section1 :p])))
+
+(comment (defn extract-finalists [page]
+           (filter (fn [p] (not (empty? (select p [:b])))) page)))
+
+(comment (map (fn [row] (map #(:content % ) (select row [:b]))) (extract-finalists m)))
+
+(comment (map #(:content %)
+              (first (nth (map (fn [row] (map #(:content % ) (select row [:b]))) (extract-finalists m)) 6))))
+
+(comment (nth (map (fn [row] (map #(:content % ) (select row [:b]))) (extract-finalists m)) 6))
+
+(comment (def blah  (nth (->> (extract-finalists m)
+                              (map (fn [row] (map #(:content % ) (select row [:b]))))
+                              ) 6)))
 
 
 (comment  (def bar  (->> foo
                          (filter (fn [row] (string? row)))
                          (partition-by (fn [row] (clojure.string/blank? (re-find #"[a-zA-Z\s0-9']+" row)))))))
 
+
+(comment (defn matches [file]
+           (->> file
+                fetch-page
+                extract-rows
+                (map extract-content)
+                (filter recognise-match?)
+                (map as-match))))
+
+(comment (->> "/Users/markhneedham/code/ranking-algorithms/data/ec200203det.html"
+              fetch-page
+              extract-rows
+              (map-indexed extract-content)
+              (filter recognise-match?)
+              (take 5)))
+
+(comment (defn extract-content [idx row]
+  [idx (first (get row :content))]))
+
+(comment (defn recognise-match? [[idx row]]
+  (and (string? row) (re-matches #"[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]" row))))

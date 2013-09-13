@@ -13,18 +13,33 @@
   [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}]
   (+ ranking (* importance (- 0 (expected ranking opponent-ranking) ))))
 
+(comment (def round-value
+           {"First Qualifying Round" 4
+            "Second qualifying round" 6
+            "Third qualifying round" 8
+            "First group-match stage" 12
+            "Second group-match stage" 15   
+            "Quarter Finals" 18
+            "Semi-finals" 25
+            "Final" 32}))
+
 (def round-value
-  {"First Qualifying Round" 4
-   "Second qualifying round" 6
-   "Third qualifying round" 8
-   "First group-match stage" 12
-   "Second group-match stage" 15   
-   "Quarter Finals" 18
+  {"First qualifying round" 2
+   "Second qualifying round" 3
+   "Third qualifying round" 5
+   "Play-offs" 7
+   "Group stage" 12
+   "Round of 16" 15
+   "Quarter-finals" 18
    "Semi-finals" 25
-   "Final" 32})
+   "Final" 32 })
+
+(def round-value
+  {})
 
 (defn process-match [ts match]
   (let [{:keys [home away home_score away_score round]} match]
+
     (cond
      (> home_score away_score)
      (-> ts
