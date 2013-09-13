@@ -4,8 +4,7 @@
   (:require [ranking-algorithms.uefa :as uefa]))
 
 (defn top-teams [number matches]
-  (let [teams-with-rankings
-        (apply array-map (mapcat (fn [x] [x {:points 1200}]) (uefa/extract-teams matches)))]
+  (let [teams-with-rankings (ranking/initial-rankings (uefa/extract-teams matches))]
     (map (fn [[ team details]]  [team (format "%.2f" ( :points details))])
          (take number
                (sort-by #(:points (val %))

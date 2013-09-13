@@ -23,10 +23,10 @@
      :round round
      :date date}))
 
-(def all-matches 
+(defn all-matches [year] 
   (sort-by :date
            (mapcat (fn [file] (->> file fetch-page extract-rows (map extract-content)))
-                   (files 2009))))
+                   (files year))))
 
 (defn files [year]
   (map #(str "data/uefa/" year "/_matchesbydate.html." %)
