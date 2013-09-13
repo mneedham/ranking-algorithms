@@ -34,16 +34,22 @@
        (* (g opponent-ranking-rd)
           (- score (e ranking opponent-ranking opponent-ranking-rd))))))
 
+(defn g-and-e
+  [ranking {o-rd :opponent-ranking-rd o-ranking :opponent-ranking}]
+  {:g (g o-rd) :e (e ranking o-ranking o-rd)})
+
 (defn ranking-after-round
-  [{ ranking :ranking rd :ranking-rd opponents :opponents}]
+  [{ ranking :ranking rd :ranking-rd opponents :opponents}]  
   (+ ranking
      (* (/ q
-           (+ (/ 1 (math/expt 2 rd))
-              (/ 1 (d2 (map (fn [o] {:g (g (:opponent-ranking-rd o))
-                                    :e (e ranking (:opponent-ranking o) (:opponent-ranking-rd o))}) opponents)))))
+           (+ (/ 1 (math/expt rd 2))
+              (/ 1 (d2 (map (partial g-and-e ranking) opponents)))))
         (reduce update-ranking 0 (map #(assoc-in % [:ranking] ranking) opponents)))))
 
-(defn )
+(defn rd-after-round
+  [{ ranking :ranking rd :ranking-rd opponents :opponents}]
+  (java.lang.Math/sqrt (+ (/ 1 (math/expt rd 2)
+                             ))))
 
 (defn process-match [ts match]
   (let [{:keys [home away home_score away_score]} match]
