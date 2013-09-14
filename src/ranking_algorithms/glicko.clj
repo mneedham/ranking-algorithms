@@ -48,8 +48,9 @@
 
 (defn rd-after-round
   [{ ranking :ranking rd :ranking-rd opponents :opponents}]
-  (java.lang.Math/sqrt (+ (/ 1 (math/expt rd 2)
-                             ))))
+  (java.lang.Math/sqrt (/ 1 (+ (/ 1 (math/expt rd 2)
+                                  )
+                               (/ 1 (d2 (map (partial g-and-e ranking) opponents)))))))
 
 (defn process-match [ts match]
   (let [{:keys [home away home_score away_score]} match]
