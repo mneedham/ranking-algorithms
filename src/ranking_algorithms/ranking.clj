@@ -10,21 +10,18 @@
         (math/expt 10 (/ (- opponent-ranking my-ranking)
                          400)))))
 
-(defn ranking-after-win
+(defn ranking-after-game
   [{ ranking :ranking
      opponent-ranking :opponent-ranking
-     importance :importance}]
+     importance :importance
+     score  :score}]
   (+ ranking
      (* importance
-        (- 1 (expected ranking opponent-ranking) ))))
+        (- score (expected ranking opponent-ranking) ))))
 
-(defn ranking-after-loss
-  [{ ranking :ranking
-    opponent-ranking :opponent-ranking
-     importance :importance}]
-  (+ ranking
-     (* importance
-        (- 0 (expected ranking opponent-ranking) ))))
+(defn ranking-after-win [args] (ranking-after-game (merge args {:score 1})))
+(defn ranking-after-win [args] (ranking-after-game (merge args {:score 0})))
+(defn ranking-after-draw [args] (ranking-after-game (merge args {:score 0.5})))
 
 (def round-value
   {"First qualifying round" 2
@@ -56,7 +53,14 @@
          (update-in [away :points] #(ranking-after-win {:ranking %
                                                         :opponent-ranking (:points (get ts home))
                                                         :importance (get round-value round 32)})))
-     (= home_score away_score) ts)))
+     (= home_score away_score)
+     (-> ts
+         (update-in [home :points] #(ranking-after-draw {:ranking %
+                                                         :opponent-ranking (:points  (get ts away))
+                                                         :importance (get round-value round 32)}))
+         (update-in [away :points] #(ranking-after-draw {:ranking %
+                                                        :opponent-ranking (:points (get ts home))
+                                                        :importance (get round-value round 32)}))))))
 
 (comment (def round-value
            {"First Qualifying Round" 4
