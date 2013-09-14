@@ -3,20 +3,42 @@
   (:require [ranking-algorithms.parse :as parse])
   (:require [ranking-algorithms.uefa :as uefa]))
 
-(defn top-teams [number matches]
-  (let [teams-with-rankings (ranking/initial-rankings (uefa/extract-teams matches))]
-    (map (fn [[ team details]]  [team (format "%.2f" ( :points details))])
-         (take number
-               (sort-by #(:points (val %))
-                        >
-                        (reduce ranking/process-match teams-with-rankings matches))))))
+(defn merge-rankings [base-rankings initial-rankings]
+  (merge initial-rankings
+         (into {} (filter #(contains? initial-rankings (key %)) base-rankings))))
 
-(defn print-top-teams [number all-matches]
-  (doseq [[team details] (ranking-algorithms.core/top-teams number all-matches)]
-    (println team
-             details
-             (match-record (show-matches team all-matches))
-             (performance (show-matches team all-matches)))))
+(defn rank-teams
+  ([matches] (rank-teams matches {}))
+  ([matches base-rankings]
+     (let [teams-with-rankings
+           (merge-rankings base-rankings (ranking/initial-rankings (uefa/extract-teams matches)))]       
+       (map (fn [[ team details]]  [team (read-string (format "%.2f" (:points details)))])         
+            (sort-by #(:points (val %))
+                     >
+                     (reduce ranking/process-match teams-with-rankings matches))))))
+
+(defn top-teams
+  ([number matches] (top-teams number matches {}))
+  ([number matches base-rankings]
+      (take number (rank-teams matches base-rankings))))
+
+(defn base-ratings [teams]
+  (apply array-map (flatten (map (fn [[team points]] [team {:points points}]) teams))))
+
+(def base
+  (base-ratings (rank-teams (ranking-algorithms.uefa/every-match))))
+
+(defn format-for-printing [all-matches idx [team ranking]]
+  (let [team-matches (show-matches team all-matches)]
+    (merge  {:rank (inc idx) :team team :ranking ranking :round (performance team-matches)}
+            (match-record team-matches))))
+
+(defn print-top-teams
+  ([number all-matches] (print-top-teams number all-matches {}))
+  ([number all-matches base-rankings]
+      (clojure.pprint/print-table
+       [:rank :team :ranking :round :wins :draw :loses]
+       (map-indexed (partial format-for-printing all-matches) (top-teams number all-matches base-rankings)))))
 
 (defn match-record [opponents]
   {:wins   (count (filter #(> (:for %) (:against %)) opponents))
@@ -44,6 +66,13 @@
 
 (doseq [match (show-matches "Manchester United" all-matches)]
   (println match))
+
+(comment (defn print-top-teams [number all-matches]
+           (doseq [[team details] (ranking-algorithms.core/top-teams number all-matches)]
+             (println team
+                      details
+                      (match-record (show-matches team all-matches))
+                      (performance (show-matches team all-matches))))))
 
 
 

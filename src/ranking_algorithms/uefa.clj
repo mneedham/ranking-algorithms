@@ -28,6 +28,9 @@
            (mapcat (fn [file] (->> file fetch-page extract-rows (map extract-content)))
                    (files year))))
 
+(def every-match
+  (mapcat #(all-matches %) (range 2004 2014)))
+
 (defn files [year]
   (map #(str "data/uefa/" year "/_matchesbydate.html." %)
        (range (- ( count (file-seq (clojure.java.io/file (str "data/uefa/" year)))) 1))))

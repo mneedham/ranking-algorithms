@@ -2,19 +2,29 @@
   (:require [clojure.math.numeric-tower :as math]))
 
 (defn initial-rankings [teams]
-  (apply array-map (mapcat (fn [x] [x {:points 1200}]) teams)))
+  (apply array-map (mapcat (fn [x] [x {:points 1200.00}]) teams)))
 
 (defn expected [my-ranking opponent-ranking]
   (/ 1.0
-     (+ 1 (math/expt 10 (/ (- opponent-ranking my-ranking) 400)))))
+     (+ 1
+        (math/expt 10 (/ (- opponent-ranking my-ranking)
+                         400)))))
 
 (defn ranking-after-win
-  [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}]
-  (+ ranking (* importance (- 1 (expected ranking opponent-ranking) ))))
+  [{ ranking :ranking
+     opponent-ranking :opponent-ranking
+     importance :importance}]
+  (+ ranking
+     (* importance
+        (- 1 (expected ranking opponent-ranking) ))))
 
 (defn ranking-after-loss
-  [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}]
-  (+ ranking (* importance (- 0 (expected ranking opponent-ranking) ))))
+  [{ ranking :ranking
+    opponent-ranking :opponent-ranking
+     importance :importance}]
+  (+ ranking
+     (* importance
+        (- 0 (expected ranking opponent-ranking) ))))
 
 (def round-value
   {"First qualifying round" 2
