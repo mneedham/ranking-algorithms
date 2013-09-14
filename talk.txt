@@ -1,0 +1,67 @@
+START player = node:players('name:*')
+MATCH player-[:played]-stats
+RETURN player.name, 
+       SUM(stats.goals) AS goals
+ORDER BY goals DESC
+LIMIT 10
+
+
+
+==> +-----------------------------+
+==> | player.name         | goals |
+==> +-----------------------------+
+==> | "Robin Van Persie"  | 25    |
+==> | "Luis Suárez"       | 23    |
+==> | "Gareth Bale"       | 19    |
+==> | "Christian Benteke" | 18    |
+==> | "Michu"             | 17    |
+==> | "Demba Ba"          | 15    |
+==> | "Romelu Lukaku"     | 14    |
+==> | "Rickie Lambert"    | 14    |
+==> | "Dimitar Berbatov"  | 13    |
+==> | "Frank Lampard"     | 13    |
+==> +-----------------------------+
+
+
+START player = node:players('name:*')
+MATCH player-[:played]-stats-[:in]-game, 
+      stats-[:for]-team
+WHERE game-[:away_team]-team
+RETURN player.name, 
+       SUM(stats.goals) AS goals
+ORDER BY goals DESC
+LIMIT 10
+
+==> +-----------------------------+
+==> | player.name         | goals |
+==> +-----------------------------+
+==> | "Robin Van Persie"  | 13    |
+==> | "Gareth Bale"       | 13    |
+==> | "Luis Suárez"       | 12    |
+==> | "Steven Fletcher"   | 8     |
+==> | "Juan Mata"         | 8     |
+==> | "Christian Benteke" | 8     |
+==> | "Rickie Lambert"    | 8     |
+==> | "Santi Cazorla"     | 7     |
+==> | "Romelu Lukaku"     | 7     |
+==> | "Edin Dzeko"        | 7     |
+==> +-----------------------------+
+
+START team = node:teams('name:"Wigan"'),
+      country=node:countries('name:"England"')
+MATCH player-[:comes_from]->country,
+      team-[:home_team|away_team]->game,
+      game<-[:in]-stats-[:for]->team, 
+      stats<-[:played]-player-[:scored_in]->game, 
+      game<-[:home_team|away_team]-opposition
+RETURN player.name AS name, 
+       opposition.name AS opposition, 
+       game.friendly_date AS date
+
+
+==> +---------------------------------------------------------+
+==> | name               | opposition          | date         |
+==> +---------------------------------------------------------+
+==> | "Ben Watson"       | "Tottenham Hotspur" | "2012-11-03" |
+==> | "Callum McManaman" | "Tottenham Hotspur" | "2013-04-27" |
+==> +---------------------------------------------------------+
