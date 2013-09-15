@@ -3,9 +3,9 @@
   (:require [clj-time.core :as time]))
 
 (defn fetch-page
-  "Processes a file path into a HTML resource"
   [file-path]
-  (html-resource (java.io.StringReader. (slurp file-path))))
+  (html-resource
+   (java.io.StringReader. (slurp file-path))))
 
 (defn extract-rows [page]
   (select page [:table :tbody]))
@@ -28,8 +28,22 @@
            (mapcat (fn [file] (->> file fetch-page extract-rows (map extract-content)))
                    (files year))))
 
-(def every-match
-  (mapcat #(all-matches %) (range 2004 2014)))
+(defn every-match []
+  (mapcat #(all-matches %) (range 2004 2013)))
+
+(defn teams-by-season []
+  (map #(extract-teams (all-matches %))
+       [2004 2005 2006 2008 2009 2010 2011 2012 2013]))
+
+(defn every-team []
+  (apply array-map
+         (mapcat (fn [team] [team 0])
+                 (set (mapcat #(extract-teams (all-matches %)) (range 2004 2013))))))
+
+(reductions (fn [all-teams season-teams]
+              (-> all-teams (update-in ["Real Madrid"] inc)))
+        (every-team)
+        (teams-by-season))
 
 (defn files [year]
   (map #(str "data/uefa/" year "/_matchesbydate.html." %)

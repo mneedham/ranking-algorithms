@@ -1,5 +1,6 @@
 (ns ranking-algorithms.core
   (:require [ranking-algorithms.ranking :as ranking])
+  (:require [ranking-algorithms.glicko :as glicko])
   (:require [ranking-algorithms.parse :as parse])
   (:require [ranking-algorithms.uefa :as uefa]))
 
@@ -22,16 +23,27 @@
   ([number matches base-rankings]
       (take number (rank-teams matches base-rankings))))
 
+(defn top-glicko-teams
+  ([number matches] (top-glicko-teams number matches {}))
+  ([number matches base-rankings]
+      (take number (rank-glicko-teams matches base-rankings))))
+
 (defn base-ratings [teams]
   (apply array-map (flatten (map (fn [[team points]] [team {:points points}]) teams))))
 
 (def base
-  (base-ratings (rank-teams (ranking-algorithms.uefa/every-match))))
+  (base-ratings (rank-teams (uefa/every-match))))
 
-(defn format-for-printing [all-matches idx [team ranking]]
+(defn format-for-printing [all-matches idx [team ranking & [rd]]]
   (let [team-matches (show-matches team all-matches)]
-    (merge  {:rank (inc idx) :team team :ranking ranking :round (performance team-matches)}
+    (merge  {:rank (inc idx) :team team :ranking ranking :rd rd :round (performance team-matches)}
             (match-record team-matches))))
+
+(defn print-top-glicko-teams
+  [number all-matches]
+  (clojure.pprint/print-table
+   [:rank :team :ranking :rd :round :wins :draw :loses]
+   (map-indexed (partial format-for-printing all-matches) (top-glicko-teams number all-matches))))
 
 (defn print-top-teams
   ([number all-matches] (print-top-teams number all-matches {}))
@@ -51,18 +63,47 @@
 
 (defn show-opposition [team match]
   (if (= team (:home match))
-    {:opposition (:away match) :for (:home_score match)
-     :against (:away_score match) :round (:round match)}
-    {:opposition (:home match) :for (:away_score match)
-     :against (:home_score match) :round (:round match)}))
+    {:opposition (:away match) :for (:home_score match) :against (:away_score match) :round (:round match)}
+    {:opposition (:home match) :for (:away_score match) :against (:home_score match) :round (:round match)}))
 
 (defn show-matches [team matches]
   (->> matches
        (filter #(or (= team (:home %)) (= team (:away %))))
        (map #(show-opposition team %))))
 
-(ranking-algorithms.core/match-record
- (ranking-algorithms.core/show-matches "FC Liverpool" all-matches))
+(defn show-opponents [team matches rankings]
+  (map #(merge (get rankings (:opposition %)) %)
+       (show-matches team matches)))
+
+(defn process-team
+  [team ranking matches]
+  (let [rankings  (glicko/initial-rankings (uefa/extract-teams matches))
+        opponents (map glicko/as-glicko-opposition (show-opponents team matches rankings))]
+    (-> ranking
+        (update-in [:points] #(glicko/ranking-after-round { :ranking % :ranking-rd (:rd (get rankings team)) :opponents opponents}))
+        (update-in [:rd]     #(glicko/rd-after-round      { :ranking (:points (get rankings team)) :ranking-rd % :opponents opponents})))))
+
+(defn update-team
+  [matches rankings updated team]
+  (println team (get rankings team) g-rankings)
+  (assoc-in updated [team] (process-team team (get rankings team) matches)))
+
+(defn apply-rounding
+  [[ team details]]
+  [team (read-string (format "%.2f" (:points details))) (format "%.2f" (:rd details))])
+
+(defn rank-glicko-teams
+  ([matches] (rank-glicko-teams matches {}))
+  ([matches base-rankings]
+     (let [teams-with-rankings
+           (merge-rankings base-rankings
+                           (glicko/initial-rankings (uefa/extract-teams matches)))
+           teams
+           (uefa/extract-teams matches)]
+       (map apply-rounding
+            (sort-by #(:points (val %))
+                     >
+                     (reduce (partial update-team matches teams-with-rankings) {} teams))))))
 
 (doseq [match (show-matches "Manchester United" all-matches)]
   (println match))
@@ -73,10 +114,4 @@
                       details
                       (match-record (show-matches team all-matches))
                       (performance (show-matches team all-matches))))))
-
-
-
-
-
-
 

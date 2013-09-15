@@ -1,6 +1,12 @@
 (ns ranking-algorithms.glicko
   (:require [clojure.math.numeric-tower :as math]))
 
+(defn as-glicko-opposition
+  [{ goals-for :for goals-against :against ranking :points rd :rd}]
+  {:opponent-ranking ranking
+   :opponent-ranking-rd rd
+   :score (cond (> goals-for goals-against) 1 (< goals-for goals-against) 0 :else 0.5)})
+
 (defn initial-rankings [teams]
   (apply array-map (mapcat (fn [x] [x {:points 1500 :rd 350}]) teams)))
 
@@ -51,6 +57,15 @@
   (java.lang.Math/sqrt (/ 1 (+ (/ 1 (math/expt rd 2)
                                   )
                                (/ 1 (d2 (map (partial g-and-e ranking) opponents)))))))
+
+(defn c [rd t]
+  (java.lang.Math/sqrt (/ (- (math/expt 350 2)
+                             (math/expt rd 2))
+                          t)))
+
+(defn updated-rd [old-rd c t]
+  (java.lang.Math/min 350
+                      (java.lang.Math/sqrt )))
 
 (defn process-match [ts match]
   (let [{:keys [home away home_score away_score]} match]
