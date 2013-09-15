@@ -1,0 +1,22 @@
+#!/bin/sh
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=1992-1993
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=1993-1994
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=1994-1995
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=1995-1996
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=1996-1997
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=1997-1998
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=1998-1999
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=1999-2000
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2000-2001
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2001-2002
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2002-2003
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2003-2004
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2004-2005
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2005-2006
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2006-2007
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2007-2008
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2008-2009
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2009-2010
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2010-2011
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2011-2012
+wget --quiet http://www.premierleague.com/en-gb/matchday/league-table.html?season=2012-2013

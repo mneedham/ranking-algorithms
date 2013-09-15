@@ -12,11 +12,15 @@
   ([matches] (rank-teams matches {}))
   ([matches base-rankings]
      (let [teams-with-rankings
-           (merge-rankings base-rankings (ranking/initial-rankings (uefa/extract-teams matches)))]       
-       (map (fn [[ team details]]  [team (read-string (format "%.2f" (:points details)))])         
-            (sort-by #(:points (val %))
-                     >
-                     (reduce ranking/process-match teams-with-rankings matches))))))
+           (merge-rankings
+            base-rankings
+            (ranking/initial-rankings (uefa/extract-teams matches)))]       
+       (map
+        (fn [[team details]]
+          [team (read-string (format "%.2f" (:points details)))])
+        (sort-by #(:points (val %))
+                 >
+                 (reduce ranking/process-match teams-with-rankings matches))))))
 
 (defn top-teams
   ([number matches] (top-teams number matches {}))
@@ -29,28 +33,37 @@
       (take number (rank-glicko-teams matches base-rankings))))
 
 (defn base-ratings [teams]
-  (apply array-map (flatten (map (fn [[team points]] [team {:points points}]) teams))))
+  (apply array-map
+         (flatten (map (fn [[team points]] [team {:points points}]) teams))))
 
 (def base
   (base-ratings (rank-teams (uefa/every-match))))
 
 (defn format-for-printing [all-matches idx [team ranking & [rd]]]
   (let [team-matches (show-matches team all-matches)]
-    (merge  {:rank (inc idx) :team team :ranking ranking :rd rd :round (performance team-matches)}
+    (merge  {:rank (inc idx)
+             :team team
+             :ranking ranking
+             :rd rd
+             :round (performance team-matches)}
             (match-record team-matches))))
 
 (defn print-top-glicko-teams
   [number all-matches]
   (clojure.pprint/print-table
    [:rank :team :ranking :rd :round :wins :draw :loses]
-   (map-indexed (partial format-for-printing all-matches) (top-glicko-teams number all-matches))))
+   (map-indexed
+    (partial format-for-printing all-matches)
+    (top-glicko-teams number all-matches))))
 
 (defn print-top-teams
   ([number all-matches] (print-top-teams number all-matches {}))
   ([number all-matches base-rankings]
       (clojure.pprint/print-table
        [:rank :team :ranking :round :wins :draw :loses]
-       (map-indexed (partial format-for-printing all-matches) (top-teams number all-matches base-rankings)))))
+       (map-indexed
+        (partial format-for-printing all-matches)
+        (top-teams number all-matches base-rankings)))))
 
 (defn match-record [opponents]
   {:wins   (count (filter #(> (:for %) (:against %)) opponents))
@@ -85,7 +98,6 @@
 
 (defn update-team
   [matches rankings updated team]
-  (println team (get rankings team) g-rankings)
   (assoc-in updated [team] (process-team team (get rankings team) matches)))
 
 (defn apply-rounding

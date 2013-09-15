@@ -7,8 +7,7 @@
 (defn expected [my-ranking opponent-ranking]
   (/ 1.0
      (+ 1
-        (math/expt 10 (/ (- opponent-ranking my-ranking)
-                         400)))))
+        (math/expt 10 (/ (- opponent-ranking my-ranking) 400)))))
 
 (defn ranking-after-game
   [{ ranking :ranking
@@ -19,9 +18,14 @@
      (* importance
         (- score (expected ranking opponent-ranking) ))))
 
-(defn ranking-after-win [args] (ranking-after-game (merge args {:score 1})))
-(defn ranking-after-win [args] (ranking-after-game (merge args {:score 0})))
-(defn ranking-after-draw [args] (ranking-after-game (merge args {:score 0.5})))
+(defn ranking-after-loss [args]
+  (ranking-after-game (merge args {:score 0})))
+
+(defn ranking-after-win [args]
+  (ranking-after-game (merge args {:score 1})))
+
+(defn ranking-after-draw [args]
+  (ranking-after-game (merge args {:score 0.5})))
 
 (def round-value
   {"First qualifying round" 2
