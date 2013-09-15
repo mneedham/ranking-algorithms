@@ -31,19 +31,28 @@
 (defn every-match []
   (mapcat #(all-matches %) (range 2004 2013)))
 
+(def seasons [2004 2005 2006 2008 2009 2010 2011 2012])
+
 (defn teams-by-season []
   (map #(extract-teams (all-matches %))
-       [2004 2005 2006 2008 2009 2010 2011 2012 2013]))
+       [2004 2005 2006 2008 2009 2010 2011 2012]))
 
 (defn every-team []
   (apply array-map
          (mapcat (fn [team] [team 0])
                  (set (mapcat #(extract-teams (all-matches %)) (range 2004 2013))))))
 
-(reductions (fn [all-teams season-teams]
-              (-> all-teams (update-in ["Real Madrid"] inc)))
-        (every-team)
-        (teams-by-season))
+(def periods-missed-per-season
+  (zipmap seasons (periods-missed (every-team) (teams-by-season))))
+
+(defn periods-missed [every-team teams-by-season]
+  (drop 1
+        (reductions (fn [all-teams season-teams]
+                      (reduce (fn [at t] (if (contains? at t) (update-in at [t] (fn [x] 1)) at))
+                              (reduce (fn [at [t _]] (update-in at [t] inc)) all-teams all-teams)
+                              season-teams ))
+                    every-team
+                    teams-by-season)))
 
 (defn files [year]
   (map #(str "data/uefa/" year "/_matchesbydate.html." %)

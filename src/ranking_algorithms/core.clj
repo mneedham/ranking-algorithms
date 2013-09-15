@@ -104,12 +104,34 @@
   [[ team details]]
   [team (read-string (format "%.2f" (:points details))) (format "%.2f" (:rd details))])
 
+(defn glickoify
+  ([matches] (glickoify matches {}))
+  ([matches base-rankings]
+      (reduce (fn [acc [team points rd]] (assoc-in acc [team] {:points points :rd rd}))
+              {}
+              (rank-glicko-teams matches base-rankings))))
+
+uefa/periods-missed-per-season
+
+uefa/seasons
+
+
+(defn glicko-after
+  ([year]
+     (let [base-rankings (glicko/initial-rankings (uefa/extract-teams (uefa/every-match)))]
+        (glicko-after year base-rankings)))
+  ([year base-rankings]
+     (let [periods-missed (get uefa/periods-missed-per-season year)
+           matches (uefa/all-matches year)
+           ]
+       (glickoify matches base-rankings))))
+
 (defn rank-glicko-teams
   ([matches] (rank-glicko-teams matches {}))
   ([matches base-rankings]
      (let [teams-with-rankings
-           (merge-rankings base-rankings
-                           (glicko/initial-rankings (uefa/extract-teams matches)))
+           (merge 
+                   (glicko/initial-rankings (uefa/extract-teams matches)) base-rankings)
            teams
            (uefa/extract-teams matches)]
        (map apply-rounding
