@@ -52,7 +52,7 @@
                               (reduce (fn [at [t _]] (update-in at [t] inc)) all-teams all-teams)
                               season-teams ))
                     every-team
-                    teams-by-season)))
+                    teams-by-season))) 
 
 (defn files [year]
   (map #(str "data/uefa/" year "/_matchesbydate.html." %)

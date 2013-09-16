@@ -8,7 +8,10 @@
    :score (cond (> goals-for goals-against) 1 (< goals-for goals-against) 0 :else 0.5)})
 
 (defn initial-rankings [teams]
-  (apply array-map (mapcat (fn [x] [x {:points 1500 :rd 350}]) teams)))
+  (apply array-map (mapcat (fn [x] [x {:points 1500.00 :rd 350.00}]) teams)))
+
+(defn tidy [team]
+  (if (= "Rànger's" team) "Rangers" team))
 
 (def q
   (/ (java.lang.Math/log 10) 400))
@@ -49,14 +52,20 @@
   (+ ranking
      (* (/ q
            (+ (/ 1 (math/expt rd 2))
-              (/ 1 (d2 (map (partial g-and-e ranking) opponents)))))
-        (reduce update-ranking 0 (map #(assoc-in % [:ranking] ranking) opponents)))))
+              (/ 1 (d2 (map (partial g-and-e ranking)
+                            opponents)))))
+        (reduce update-ranking
+                0
+                (map #(assoc-in % [:ranking] ranking)
+                     opponents)))))
 
 (defn rd-after-round
   [{ ranking :ranking rd :ranking-rd opponents :opponents}]
-  (java.lang.Math/sqrt (/ 1 (+ (/ 1 (math/expt rd 2)
-                                  )
-                               (/ 1 (d2 (map (partial g-and-e ranking) opponents)))))))
+  (java.lang.Math/sqrt (/ 1
+                          (+ (/ 1 (math/expt rd 2))
+                             (/ 1
+                                (d2 (map (partial g-and-e ranking)
+                                         opponents)))))))
 
 (defn c [rd t]
   (java.lang.Math/sqrt (/ (- (math/expt 350 2)
@@ -64,8 +73,9 @@
                           t)))
 
 (defn updated-rd [old-rd c t]
-  (java.lang.Math/min 350
-                      (java.lang.Math/sqrt )))
+  (min (java.lang.Math/sqrt (+ (math/expt old-rd 2)
+                               (* (math/expt c 2) t)))
+       350.00))
 
 (defn process-match [ts match]
   (let [{:keys [home away home_score away_score]} match]

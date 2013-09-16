@@ -49,12 +49,13 @@
             (match-record team-matches))))
 
 (defn print-top-glicko-teams
-  [number all-matches]
+  [number all-matches base-rankings]
   (clojure.pprint/print-table
    [:rank :team :ranking :rd :round :wins :draw :loses]
-   (map-indexed
-    (partial format-for-printing all-matches)
-    (top-glicko-teams number all-matches))))
+   (filter #(not ( nil? (:round %)))
+           (map-indexed
+            (partial format-for-printing all-matches)
+            (top-glicko-teams number all-matches base-rankings)))))
 
 (defn print-top-teams
   ([number all-matches] (print-top-teams number all-matches {}))
@@ -93,8 +94,14 @@
   (let [rankings  (glicko/initial-rankings (uefa/extract-teams matches))
         opponents (map glicko/as-glicko-opposition (show-opponents team matches rankings))]
     (-> ranking
-        (update-in [:points] #(glicko/ranking-after-round { :ranking % :ranking-rd (:rd (get rankings team)) :opponents opponents}))
-        (update-in [:rd]     #(glicko/rd-after-round      { :ranking (:points (get rankings team)) :ranking-rd % :opponents opponents})))))
+        (update-in [:points] #(glicko/ranking-after-round
+           { :ranking %
+             :ranking-rd (:rd (get rankings team))
+             :opponents opponents}))
+        (update-in [:rd] #(glicko/rd-after-round
+           { :ranking (:points (get rankings team))
+             :ranking-rd %
+             :opponents opponents})))))
 
 (defn update-team
   [matches rankings updated team]
