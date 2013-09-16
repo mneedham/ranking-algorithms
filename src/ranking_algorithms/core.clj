@@ -102,7 +102,7 @@
 
 (defn apply-rounding
   [[ team details]]
-  [team (read-string (format "%.2f" (:points details))) (format "%.2f" (:rd details))])
+  [team (read-string (format "%.2f" (:points details))) (read-string  (format "%.2f" (:rd details)))])
 
 (defn glickoify
   ([matches] (glickoify matches {}))
@@ -111,20 +111,22 @@
               {}
               (rank-glicko-teams matches base-rankings))))
 
-uefa/periods-missed-per-season
-
-uefa/seasons
+(defn updated-rds [base-rankings periods-missing]
+  (reduce (fn [coll [team _]]
+          (update-in coll
+                     [team :rd]
+                     #(glicko/updated-rd % 100 (get periods-missing team) )))
+        base-rankings
+        base-rankings))
 
 
 (defn glicko-after
   ([year]
-     (let [base-rankings (glicko/initial-rankings (uefa/extract-teams (uefa/every-match)))]
-        (glicko-after year base-rankings)))
+     (glicko-after year (glicko/initial-rankings (uefa/extract-teams (uefa/every-match)))))
   ([year base-rankings]
      (let [periods-missed (get uefa/periods-missed-per-season year)
-           matches (uefa/all-matches year)
-           ]
-       (glickoify matches base-rankings))))
+           matches (uefa/all-matches year)]
+       (glickoify matches (updated-rds base-rankings periods-missed)))))
 
 (defn rank-glicko-teams
   ([matches] (rank-glicko-teams matches {}))
@@ -137,7 +139,7 @@ uefa/seasons
        (map apply-rounding
             (sort-by #(:points (val %))
                      >
-                     (reduce (partial update-team matches teams-with-rankings) {} teams))))))
+                     (reduce (partial update-team matches teams-with-rankings) teams-with-rankings teams))))))
 
 (doseq [match (show-matches "Manchester United" all-matches)]
   (println match))
