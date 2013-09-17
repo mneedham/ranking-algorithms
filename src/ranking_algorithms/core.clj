@@ -8,6 +8,9 @@
   (merge initial-rankings
          (into {} (filter #(contains? initial-rankings (key %)) base-rankings))))
 
+(defn merge-keep-left [left right]
+  (select-keys (merge left right) keys left))
+
 (defn rank-teams
   ([matches] (rank-teams matches {}))
   ([matches base-rankings]
