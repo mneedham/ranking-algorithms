@@ -1,7 +1,9 @@
 (ns ranking-algorithms.uefa
   (:use [net.cgrand.enlive-html])
   (:require [clj-time.core :as time])
-  (:require [clj-time.format :as f]))
+  (:require [clj-time.format :as f])
+  (:require [clojure.data.json :as json])
+  (:require [clojure.java.io :as io]))
 
 (defn fetch-page
   [file-path]
@@ -16,6 +18,24 @@
 
 (defn as-date [date-field]
   (f/parse (f/formatter "dd MMM YYYY") date-field ))
+
+(defn as-date-string [date]
+  (f/unparse (f/formatter "dd MMM YYYY") date))
+
+
+(defn write-to-file [matches file]
+  (with-open [wrtr (io/writer file)]
+    (.write wrtr (json/write-str (json-friendly matches)))))
+
+(defn string-keys-to-symbols [map]
+  (reduce #(assoc %1 (-> (key %2) keyword) (val %2)) {} map))
+
+(defn read-from-file [file]
+  (map #(string-keys-to-symbols ( update-in % ["date"] as-date))
+       (json/read-str (slurp file))))
+
+(defn json-friendly [matches]
+  (map #(update-in % [:date] as-date-string) matches))
 
 (defn extract-content [match]
   (let [score (cleanup (first (:content (first  (select match [:tr :td.score :a])))))
