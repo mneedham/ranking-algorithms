@@ -28,14 +28,15 @@
         (math/expt 10 (/ (* (- (g opponent-rd))
                             (- rating opponent-rating))
                          400)))))
-(defn d2 [opponents]
-  (/ 1  (* (math/expt q 2)
-           (reduce process-opponent 0 opponents))))
 
 (defn process-opponent [total opponent]
   (let [{:keys [g e]} opponent]
     (+ total
        (* (math/expt g 2) e (- 1 e)))))
+
+(defn d2 [opponents]
+  (/ 1  (* (math/expt q 2)
+           (reduce process-opponent 0 opponents))))
 
 (defn update-ranking [ranking-delta opponent]
   (let [{:keys [ranking opponent-ranking opponent-ranking-rd score]} opponent]
