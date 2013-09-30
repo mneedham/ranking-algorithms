@@ -124,10 +124,10 @@
             (top-glicko-teams number all-matches base-rankings)))))
 
 (defn print-top-teams-without-round
-  ([number all-matches] (print-top-teams number all-matches {}))
+  ([number all-matches] (print-top-teams-without-round number all-matches {}))
   ([number all-matches base-rankings]
       (clojure.pprint/print-table
-       [:rank :team]
+       [:rank :team :ranking :wins :draw :loses]
        (map-indexed
         (partial format-for-printing all-matches)
         (top-teams number all-matches base-rankings)))))
