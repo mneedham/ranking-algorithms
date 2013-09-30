@@ -3,9 +3,13 @@
 A clojure library for ranking Champions League football teams based on matches against each other
 
 ## Usage
+
+
+### Calculating rankings for multiple seasons
 ````clojure
 user> (def the-matches (ranking-algorithms.uefa/read-from-file "data/cl-matches-2004-2012.json"))
 #'user/the-matches        
+
 user> (ranking-algorithms.core/print-top-teams-without-round 10 the-matches)
 ==========================================================
 :rank | :team          | :ranking | :wins | :draw | :loses
@@ -21,6 +25,25 @@ user> (ranking-algorithms.core/print-top-teams-without-round 10 the-matches)
 9     | Milan          | 1257.63  | 34    | 22    | 18    
 10    | Bordeaux       | 1243.04  | 12    | 3     | 7     
 ==========================================================
+````
+
+### Calculating rankings for one season
+````clojure
+user> (ranking-algorithms.core/print-top-teams 10 (ranking-algorithms.uefa/all-matches 2013))
+========================================================================
+:rank | :team       | :ranking | :round         | :wins | :draw | :loses
+========================================================================
+1     | Bayern      | 1272.74  | Final          | 10    | 1     | 2     
+2     | PSG         | 1230.02  | Quarter-finals | 6     | 3     | 1     
+3     | Dortmund    | 1220.96  | Final          | 7     | 4     | 2     
+4     | Real Madrid | 1220.33  | Semi-finals    | 6     | 3     | 3     
+5     | Porto       | 1216.97  | Round of 16    | 5     | 1     | 2     
+6     | CFR Cluj    | 1216.56  | Group stage    | 7     | 1     | 2     
+7     | Galatasaray | 1215.56  | Quarter-finals | 5     | 2     | 3     
+8     | Juventus    | 1214.0   | Quarter-finals | 5     | 3     | 2     
+9     | Málaga      | 1211.53  | Quarter-finals | 5     | 5     | 2     
+10    | Valencia    | 1211.0   | Round of 16    | 4     | 2     | 2     
+========================================================================
 ````
 
 ## License
