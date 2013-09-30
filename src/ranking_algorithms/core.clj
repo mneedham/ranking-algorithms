@@ -25,6 +25,11 @@
                  >
                  (reduce ranking/process-match teams-with-rankings matches))))))
 
+(defn update-base-rankings [base-rankings matches]
+  (reduce ranking/process-match base-rankings matches))
+
+(comment (update-base-rankings (ranking/initial-rankings (extract-teams the-matches)) the-matches))
+
 (defn top-teams
   ([number matches] (top-teams number matches {}))
   ([number matches base-rankings]
@@ -117,6 +122,15 @@
            (map-indexed
             (partial format-for-printing all-matches)
             (top-glicko-teams number all-matches base-rankings)))))
+
+(defn print-top-teams-without-round
+  ([number all-matches] (print-top-teams number all-matches {}))
+  ([number all-matches base-rankings]
+      (clojure.pprint/print-table
+       [:rank :team]
+       (map-indexed
+        (partial format-for-printing all-matches)
+        (top-teams number all-matches base-rankings)))))
 
 (defn print-top-teams
   ([number all-matches] (print-top-teams number all-matches {}))

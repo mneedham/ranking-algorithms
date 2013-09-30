@@ -22,20 +22,37 @@
 (defn as-date-string [date]
   (f/unparse (f/formatter "dd MMM YYYY") date))
 
+(defn date-aware-value-reader [key value]
+  (if (= key :date)
+    (as-date value)
+    value))
+
+(defn date-aware-value-writer [key value]
+  (if (= key :date)
+    (as-date-string value)
+    value))
 
 (defn write-to-file [matches file]
-  (with-open [wrtr (io/writer file)]
-    (.write wrtr (json/write-str (json-friendly matches)))))
-
-(defn string-keys-to-symbols [map]
-  (reduce #(assoc %1 (-> (key %2) keyword) (val %2)) {} map))
+  (spit file (json/write-str matches :value-fn date-aware-value-writer)))
 
 (defn read-from-file [file]
-  (map #(string-keys-to-symbols ( update-in % ["date"] as-date))
-       (json/read-str (slurp file))))
+  (json/read-str (slurp file)
+                 :value-fn date-aware-value-reader
+                 :key-fn keyword))
 
-(defn json-friendly [matches]
-  (map #(update-in % [:date] as-date-string) matches))
+(comment  (defn read-from-file [file]
+            (map #(string-keys-to-symbols (update-in % ["date"] as-date))
+                 (json/read-str (slurp file)))))
+
+(comment (defn string-keys-to-symbols [map]
+           (reduce #(assoc %1 (-> (key %2) keyword) (val %2)) {} map)))
+
+(comment (defn write-to-file [matches file]
+           (with-open [wrtr (io/writer file)]
+             (.write wrtr (json/write-str (json-friendly matches))))))
+
+(comment  (defn json-friendly [matches]
+            (map #(update-in % [:date] as-date-string) matches)))
 
 (defn extract-content [match]
   (let [score (cleanup (first (:content (first  (select match [:tr :td.score :a])))))
