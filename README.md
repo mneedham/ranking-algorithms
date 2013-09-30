@@ -48,6 +48,6 @@ user> (ranking-algorithms.core/print-top-teams 10 (ranking-algorithms.uefa/all-m
 
 ## License
 
-Copyright © 2013 FIXME
+Copyright © 2013 Mark Needham
 
 Distributed under the Eclipse Public License, the same as Clojure.
