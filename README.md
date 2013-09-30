@@ -4,7 +4,8 @@ A clojure library for ranking Champions League football teams based on matches a
 
 ## Usage
 ````clojure
-user> (def the-matches (ranking-algorithms.uefa/read-from-file "data/cl-matches-2004-2012.json"))#'user/the-matches        
+user> (def the-matches (ranking-algorithms.uefa/read-from-file "data/cl-matches-2004-2012.json"))
+#'user/the-matches        
 user> (ranking-algorithms.core/print-top-teams-without-round 10 the-matches)
 ==========================================================
 :rank | :team          | :ranking | :wins | :draw | :loses
