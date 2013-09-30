@@ -20,7 +20,7 @@ user> (ranking-algorithms.core/print-top-teams-without-round 10 the-matches)
 9     | Milan          | 1257.63  | 34    | 22    | 18    
 10    | Bordeaux       | 1243.04  | 12    | 3     | 7     
 ==========================================================
-````clojure
+````
 
 ## License
 
