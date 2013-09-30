@@ -3,6 +3,7 @@
 A clojure library for ranking Champions League football teams based on matches against each other
 
 ## Usage
+````clojure
     user> (def the-matches (ranking-algorithms.uefa/read-from-file "data/cl-matches-2004-2012.json"))        
     user> (ranking-algorithms.core/print-top-teams-without-round 10 the-matches)
     ==========================================================
@@ -19,7 +20,7 @@ A clojure library for ranking Champions League football teams based on matches a
     9     | Milan          | 1257.63  | 34    | 22    | 18    
     10    | Bordeaux       | 1243.04  | 12    | 3     | 7     
     ==========================================================
-        
+````clojure
 
 ## License
 
